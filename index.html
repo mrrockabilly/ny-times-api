@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="http://vignette3.wikia.nocookie.net/gtafanon/images/2/2c/NYOutline.png/revision/latest?cb=20140626035154"
+    />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
+    <title>NY Times API Project</title>
+    <style>
+        #custom-search-input {
+            padding: 3px;
+            border: solid 1px #E4E4E4;
+            border-radius: 6px;
+            background-color: #fff;
+        }
+        
+        #custom-search-input input {
+            border: 0;
+            box-shadow: none;
+        }
+        
+        #custom-search-input button {
+            margin: 2px 0 0 0;
+            background: none;
+            box-shadow: none;
+            border: 0;
+            color: #666666;
+            padding: 0 8px 0 10px;
+            border-left: solid 1px #ccc;
+        }
+        
+        #custom-search-input button:hover {
+            border: 0;
+            box-shadow: none;
+            border-left: solid 1px #ccc;
+        }
+        
+        #custom-search-input .glyphicon-search {
+            font-size: 23px;
+        }
+        
+        #search {
+            margin-bottom: 20px;
+        }
+
+        #loading{
+            display: block;
+            margin: 0 auto;
+            width: 300px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>NY Times API Project</h1>
+        <div class="row" id="search">
+            <!--http://bootsnipp.com/snippets/featured/custom-search-input-->
+            <div class="col-md-6">
+                <form id="custom-search-input">
+                    <div class="input-group col-md-12">
+                        <input type="text" class="form-control input-lg" placeholder="Search by City" />
+                        <span class="input-group-btn">
+                        <button class="btn btn-info btn-lg" type="button" onclick="customSearch()">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="media">
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <script>
+        function customSearch() {
+            let searchTerm = $('input').val();
+            var form = document.getElementById("custom-search-input");
+            form.reset();
+
+            searchTerm = searchTerm.replace(/[^0-9a-zA-Z]/g, '+');
+            nytUrl = `https://api.nytimes.com/svc/search/v2/articlesearch.json?${searchTerm}&sort=newest&api-key=31d4d32b495c43adbb5ebc53d307d2a0`
+            console.log(nytUrl);
+            document.getElementById("media").innerHTML = "<img id='loading' src='http://www.drivethrurpg.com/shared_images/ajax-loader.gif'>";
+            $.getJSON(nytUrl, function (data) {
+                document.getElementById("media").innerHTML = "";
+                for (let i = 0; i < data.response.docs.length; i++) {
+                    if (data.response.docs[i].multimedia.length === 3) {
+                        var image = "https://nytimes.com/" + data.response.docs[i].multimedia[0].url;
+                    } else {
+                        var image = "http://lorempixel.com/75/75/"
+                    }
+
+                    $("#media").append(`
+                        <div class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                <img class="media-object" src="${image}" alt="...">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <h4 class="media-heading">${data.response.docs[i].headline.main}</h4>
+                                ${data.response.docs[i].snippet}
+                            </div>
+                            </div>    
+                    `)
+                }
+
+            })
+        }
+    </script>
+</body>
